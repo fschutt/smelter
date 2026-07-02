@@ -48,7 +48,13 @@ mod required_input {
             start_pts,
             end_pts: start_pts + BATCH_DURATION,
             required: true,
-            samples: samples([("input_1", InputSamples { batches, eos: false })]),
+            samples: samples([(
+                "input_1",
+                InputSamples {
+                    batches,
+                    eos: false,
+                },
+            )]),
         }
     }
 
@@ -836,7 +842,13 @@ mod optional_input {
             start_pts,
             end_pts: start_pts + BATCH_DURATION,
             required: false,
-            samples: samples([("input_1", InputSamples { batches, eos: false })]),
+            samples: samples([(
+                "input_1",
+                InputSamples {
+                    batches,
+                    eos: false,
+                },
+            )]),
         }
     }
 
