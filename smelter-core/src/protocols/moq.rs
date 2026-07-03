@@ -3,7 +3,7 @@ use std::sync::Arc;
 
 use smelter_render::InputId;
 
-use crate::codecs::VideoDecoderOptions;
+use crate::codecs::{AudioEncoderOptions, VideoDecoderOptions, VideoEncoderOptions};
 use crate::queue::QueueInputOptions;
 
 #[derive(Debug, Clone, PartialEq)]
@@ -25,6 +25,14 @@ pub struct MoqClientInputOptions {
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct MoqInputDecoders {
     pub h264: Option<VideoDecoderOptions>,
+}
+
+pub struct MoqClientOutputOptions {
+    pub endpoint_url: Arc<str>,
+    pub broadcast_path: Arc<str>,
+    pub disable_tls_verification: bool,
+    pub video: Option<VideoEncoderOptions>,
+    pub audio: Option<AudioEncoderOptions>,
 }
 
 #[derive(Debug, thiserror::Error)]
