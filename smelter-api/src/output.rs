@@ -2,6 +2,8 @@ mod common;
 mod common_into;
 mod hls;
 mod hls_into;
+mod moq_client;
+mod moq_client_into;
 mod mp4;
 mod mp4_into;
 mod rtmp;
