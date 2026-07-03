@@ -33,6 +33,7 @@ pub enum ProtocolOutputOptions {
     Hls(HlsOutputOptions),
     Whip(WhipOutputOptions),
     Whep(WhepOutputOptions),
+    MoqClient(MoqClientOutputOptions),
 }
 
 #[derive(Debug, Clone, PartialEq)]

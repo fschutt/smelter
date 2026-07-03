@@ -27,6 +27,7 @@ pub struct MoqInputDecoders {
     pub h264: Option<VideoDecoderOptions>,
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct MoqClientOutputOptions {
     pub endpoint_url: Arc<str>,
     pub broadcast_path: Arc<str>,
