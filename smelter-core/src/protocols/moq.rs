@@ -85,6 +85,9 @@ pub enum MoqClientError {
 
     #[error("Failed to set up MoQ broadcast: {0}")]
     BroadcastSetupFailed(#[source] anyhow::Error),
+
+    #[error("Unsupported codec for MoQ client output: {0}. Only H264 video and Opus/AAC audio are supported.")]
+    UnsupportedCodec(&'static str),
 }
 
 impl MoqServerError {

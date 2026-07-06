@@ -4,8 +4,8 @@ use crossbeam_channel::{Receiver, Select, bounded};
 use hang::{
     catalog::{
         AAC as MoqAAC, AudioCodec as HangAudioCodec, AudioConfig as MoqAudioConfig,
-        Container as CatalogContainer, H264 as MoqH264, VP9 as MoqVP9,
-        VideoCodec as HangVideoCodec, VideoConfig as MoqVideoConfig,
+        Container as CatalogContainer, H264 as MoqH264, VideoCodec as HangVideoCodec,
+        VideoConfig as MoqVideoConfig,
     },
     moq_net::{Broadcast, BroadcastProducer, Origin, OriginProducer, Track},
 };
@@ -34,8 +34,6 @@ use crate::{
             },
             fdk_aac::FdkAacEncoder,
             ffmpeg_h264::FfmpegH264Encoder,
-            ffmpeg_vp8::FfmpegVp8Encoder,
-            ffmpeg_vp9::FfmpegVp9Encoder,
             libopus::OpusEncoder,
             vulkan_h264::VulkanH264Encoder,
         },
@@ -239,25 +237,11 @@ impl MoqClientOutput {
                     },
                 )?
             }
-            VideoEncoderOptions::FfmpegVp8(options) => {
-                VideoEncoderThread::<FfmpegVp8Encoder>::spawn(
-                    output_ref.clone(),
-                    VideoEncoderThreadOptions {
-                        ctx: ctx.clone(),
-                        encoder_options: options.clone(),
-                        chunks_sender,
-                    },
-                )?
+            VideoEncoderOptions::FfmpegVp8(_) => {
+                return Err(MoqClientError::UnsupportedCodec("VP8").into());
             }
-            VideoEncoderOptions::FfmpegVp9(options) => {
-                VideoEncoderThread::<FfmpegVp9Encoder>::spawn(
-                    output_ref.clone(),
-                    VideoEncoderThreadOptions {
-                        ctx: ctx.clone(),
-                        encoder_options: options.clone(),
-                        chunks_sender,
-                    },
-                )?
+            VideoEncoderOptions::FfmpegVp9(_) => {
+                return Err(MoqClientError::UnsupportedCodec("VP9").into());
             }
         };
         Ok((handle, chunks_receiver))
@@ -429,44 +413,23 @@ fn video_catalog_config(handle: &VideoEncoderThreadHandle) -> MoqVideoConfig {
     let resolution = handle.config.resolution;
     let description = handle.encoder_context();
 
-    // The codec is determined by the encoder, not the pixel format. We only
-    // ever produce H264/VP8/VP9 here, so classify by the presence and shape of
-    // the codec-config record: an avcC record (bytes 1..=3 = profile, constraint
-    // flags, level) means H264; otherwise it's a self-describing VP8/VP9 stream.
-    let codec = match &description {
-        Some(avcc) if avcc.len() >= 4 => MoqVideoCodecKind::H264 {
-            profile: avcc[1],
-            constraints: avcc[2],
-            level: avcc[3],
-        },
-        _ => MoqVideoCodecKind::Vp,
-    };
-
-    let hang_codec = match codec {
-        MoqVideoCodecKind::H264 {
-            profile,
-            constraints,
-            level,
-        } => HangVideoCodec::H264(MoqH264 {
-            inline: false,
-            profile,
-            constraints,
-            level,
-        }),
-        // VP8/VP9 don't need a codec-config record; the frames are self
-        // describing. We publish a best-effort VP9 descriptor for players that
-        // require one. TODO: parse the actual VP9 profile/level from the stream.
-        MoqVideoCodecKind::Vp => HangVideoCodec::VP9(MoqVP9 {
-            profile: 0,
-            level: 10,
-            bit_depth: 8,
-            chroma_subsampling: 1,
-            color_primaries: 1,
-            transfer_characteristics: 1,
-            matrix_coefficients: 1,
-            full_range: false,
-        }),
-    };
+    // Only H264 is supported. The avcC record carries the profile, constraint
+    // flags and level in bytes 1..=3; fall back to zeros if it's missing.
+    let hang_codec = HangVideoCodec::H264(MoqH264 {
+        inline: false,
+        profile: description
+            .as_ref()
+            .and_then(|d| d.get(1).copied())
+            .unwrap_or(0),
+        constraints: description
+            .as_ref()
+            .and_then(|d| d.get(2).copied())
+            .unwrap_or(0),
+        level: description
+            .as_ref()
+            .and_then(|d| d.get(3).copied())
+            .unwrap_or(0),
+    });
 
     let mut config = MoqVideoConfig::new(hang_codec);
     config.container = CatalogContainer::Loc;
@@ -505,14 +468,4 @@ fn audio_catalog_config(
     config.container = CatalogContainer::Loc;
     config.description = description;
     config
-}
-
-/// Local classification of the video codec while building the catalog config.
-enum MoqVideoCodecKind {
-    H264 {
-        profile: u8,
-        constraints: u8,
-        level: u8,
-    },
-    Vp,
 }
