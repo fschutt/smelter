@@ -82,6 +82,9 @@ pub enum MoqClientError {
 
     #[error("Failed to connect to MoQ relay: {0}")]
     ConnectFailed(#[source] anyhow::Error),
+
+    #[error("Failed to set up MoQ broadcast: {0}")]
+    BroadcastSetupFailed(#[source] anyhow::Error),
 }
 
 impl MoqServerError {

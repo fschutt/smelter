@@ -82,6 +82,8 @@ impl OutputStatsState {
             OutputProtocolKind::Rtmp => OutputStatsState::Rtmp(RtmpOutputState::new()),
             OutputProtocolKind::RawDataChannel => unimplemented!(),
             OutputProtocolKind::EncodedDataChannel => unimplemented!(),
+            // TODO: MoQ client output stats are not implemented yet.
+            OutputProtocolKind::MoqClient => unimplemented!(),
         }
     }
 

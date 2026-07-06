@@ -29,6 +29,7 @@ mod utils;
 pub(crate) struct VideoEncoderConfig {
     pub resolution: Resolution,
     pub output_format: OutputFrameFormat,
+    // `Some` only if using H264 in avcC format
     pub extradata: Option<bytes::Bytes>,
 }
 
