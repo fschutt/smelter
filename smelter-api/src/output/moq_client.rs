@@ -17,6 +17,10 @@ pub struct MoqClientOutput {
     /// Only enable this on trusted networks — it leaves the connection vulnerable
     /// to man-in-the-middle attacks.
     pub disable_tls_verification: Option<bool>,
+    /// Name of under which video track is advertised in the catalog.
+    pub video_track: Option<Arc<str>>,
+    /// Name of under which audio track is advertised in the catalog.
+    pub audio_track: Option<Arc<str>>,
     /// Video stream configuration.
     pub video: Option<OutputMoqClientVideoOptions>,
     /// Audio stream configuration.

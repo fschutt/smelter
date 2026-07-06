@@ -1,5 +1,6 @@
 mod certificate;
 mod client_input;
+mod client_output;
 mod connection;
 mod server;
 mod server_input;
@@ -9,6 +10,7 @@ use std::{ops::Deref, sync::Arc};
 
 pub(crate) use certificate::SelfSignedTlsError;
 pub use client_input::MoqClientInput;
+pub use client_output::MoqClientOutput;
 pub(super) use server::{MoqPipelineState, MoqServer, spawn_moq_server};
 pub use server_input::MoqServerInput;
 

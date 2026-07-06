@@ -176,6 +176,9 @@ pub enum OutputInitError {
 
     #[error(transparent)]
     RtmpError(#[from] RtmpClientError),
+
+    #[error(transparent)]
+    MoqError(#[from] MoqClientError),
 }
 
 /// Error that can happen after registration

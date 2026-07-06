@@ -108,6 +108,7 @@ pub enum OutputProtocolKind {
     Whep,
     Mp4,
     Hls,
+    MoqClient,
     EncodedDataChannel,
     RawDataChannel,
 }
